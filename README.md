@@ -1,6 +1,6 @@
 # sleeputils - www.sleep.codes
 
-## useful scripts
+___
 
 #### TurboDL | Optimized AIO Video Downloader
 
@@ -20,8 +20,12 @@
 
 #### Randomstring
 
-`randomstring 30`
+```bash
+randomstring 30 #generates a random string of length 30
+```
 
-## Move `/usr/bin/ for convinence sake
+___
+
+## Move to `/usr/bin/` for convinence sake
 
 [sleep.codes](https://sleep.codes)
