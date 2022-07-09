@@ -1,0 +1,71 @@
+#!/bin/sh
+cd "/home/anon/aria2c/"
+clear && echo "TurboDL" | figlet |lolcat
+echo "⚡⚡⚡⚡⚡⚡⚡sleep.codes ⚡⚡⚡⚡⚡⚡⚡⚡" | lolcat
+start=$SECONDS
+link=$1
+
+if	 [[ "$1" == *"youtube.com"* ]]; then
+	link=${1/youtube.com/invidious.tiekoetter.com}
+	yt-dlp -f best -q --progress --no-warnings --downloader aria2c --downloader-args aria2c:"-c -x 16 -s 16 -k 1MB --console-log-level=error" "$link"
+elif
+	[[ "$1" == *"tiktok.com"* ]]; then
+
+
+	 vid=${1%\?*} && vid=${vid#https://www.tiktok.com/} && vid=${vid///video/}
+	read -p "Downlad ALL videos? (y/N)" choice
+	clear && echo "TurboDL" | figlet |lolcat
+	echo "⚡⚡⚡⚡⚡⚡⚡ [TikTok]  ⚡⚡⚡⚡⚡⚡⚡⚡" | lolcat
+	userAgent="Mozilla/6.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+	read videoUrl referer < <(echo $(curl -c cookies.txt -s "https://www.tiktok.com/node/share/video/$vid" -H "User-Agent: $userAgent" | jq -r '.itemInfo.itemStruct.video.downloadAddr, .seoProps.metaParams.canonicalHref'))
+	if [ "$choice" == "y" ]; then
+		curl -b cookies.txt -s "https://www.tiktok.com/@wadbot" -H "User-Agent: $userAgent" | tidy -b -i -c --quiet yes --show-warnings no> temp.html
+		sed -i '/SIGI_STATE/Q' temp.html
+		allvidlinks=$(cat "temp.html" | sed -n '/https:\/\/www.tiktok.com\/@wadbot\/video\//p' | sed 's/>//g' | sed 's/"//g')
+		count=0
+		#get total lines in allvidlinks
+		total=$(echo "$allvidlinks" | wc -l)
+		for vidlink in $allvidlinks; do
+			vid=${vidlink%\?*} && vid=${vid#https://www.tiktok.com/} && vid=${vid///video/}
+			read videoUrl referer < <(echo $(curl -c cookies.txt -s "https://www.tiktok.com/node/share/video/$vid" -H "User-Agent: $userAgent" | jq -r '.itemInfo.itemStruct.video.downloadAddr, .seoProps.metaParams.canonicalHref'))
+
+
+			aria2c -c -x 16 -s 16 -k 1MB --quiet --console-log-level=error --user-agent="$userAgent" --load-cookies=cookies.txt --referer="$referer" "$videoUrl" -o $"/TikTok/${vid%/*}/${vid#*/}.mp4"
+	echo "Finished downloading $vid" |lolcat && rm cookies.txt
+		count=$((count+1))
+			clear && echo "TurboDL" | figlet |lolcat
+			echo "⚡⚡⚡⚡⚡⚡⚡⚡ [$count$i/$((total-1))]  ⚡⚡⚡⚡⚡⚡⚡⚡" | lolcat
+
+		 done
+	rm temp.html && rm cookies.txt
+
+
+else
+	mkdir -p "TikTok" "TikTok/${vid%/*}"
+	aria2c -c -x 16 -s 16 -k 1MB --quiet --console-log-level=error --user-agent="$userAgent" --load-cookies=cookies.txt --referer="$referer" "$videoUrl" -o $"/TikTok/${vid%/*}/${vid#*/}.mp4"
+	echo "Finished downloading $vid" |lolcat && rm cookies.txt
+
+fi
+
+
+else
+	echo $link
+
+      if	 [[ "$1" == *"soundcloud.com"* ]]; then
+
+		echo "Downloading mp3" |lolcat
+		cd "../Music/"
+		yt-dlp -q --progress --no-warnings --downloader aria2c --downloader-args aria2c:"-c -x 16 -s 16 -k 1MB --console-log-level=error" "$link"
+	else
+		echo "Downloading mp4" | lolcat
+		yt-dlp -q --progress --no-warnings --downloader aria2c --downloader-args aria2c:"-c -x 16 -s 16 -k 1MB --console-log-level=error" "$link"
+	fi
+
+
+
+
+fi
+
+duration=$(( SECONDS - start ))
+clear && echo "TurboDL" | figlet |lolcat
+echo "⚡⚡⚡⚡⚡⚡Finished in ${duration}s! ⚡⚡⚡⚡⚡⚡" | lolcat

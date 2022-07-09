@@ -1,0 +1,2 @@
+#!/bin/sh
+mpv "$(ls -t | grep .mp4$ | dmenu -l 32)"
